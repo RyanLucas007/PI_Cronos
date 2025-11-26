@@ -11,6 +11,7 @@ from werkzeug.utils import secure_filename
 mimetypes.add_type("application/wasm", ".wasm")
 mimetypes.add_type("application/octet-stream", ".data")
 
+# --> Obtein algumas funões/tabelas do banco de dados (db.py)
 from db import (
     init_db, cadastrar_usuario, listar_usuarios, buscar_usuario_por_email,
     listar_jogos, jogos_do_usuario, comprar_jogo,
@@ -37,6 +38,7 @@ os.makedirs(GAMES_ROOT, exist_ok=True)
 AVATARS_DIR = os.path.join(STATIC_DIR, "uploads", "avatars")
 os.makedirs(AVATARS_DIR, exist_ok=True)
 
+# --> arquivos base permitido e algumas categorias que possuem no site
 ALLOWED_IMAGE_EXTS = {"png", "jpg", "jpeg", "webp"}
 ALLOWED_VIDEO_EXTS = {"mp4", "webm", "mov"}
 ALLOWED_ZIP_EXTS   = {"zip"}
@@ -259,6 +261,7 @@ def cadastrar():
     return render_template("cadastrar.html")
 
 
+# --> Fazendo a verificação direto do Banco de dados para fazer a realização do login
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":

@@ -184,11 +184,6 @@ def init_db():
         """)
 
         cur = conn.execute("SELECT COUNT(*) FROM jogos")
-        # (qtd,) = cur.fetchone()
-        # if qtd == 0:
-        #     jogos_seed = [...]
-        #     conn.executemany(...)
-
         # usuário dev padrão
         cur = conn.execute("SELECT id FROM usuarios WHERE email = ?", ("dev@cronos.local",))
         if cur.fetchone() is None:

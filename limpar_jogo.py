@@ -1,3 +1,5 @@
+# --> Somente para desenvolvimento (não é utilizado no projeto final.)
+
 import sqlite3
 from db import DB_PATH
 
