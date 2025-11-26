@@ -1,2 +1,12 @@
 # PI_Cronos
 
+A versão do python utilizada foi a 3.10.0 - https://www.python.org/downloads/release/python-3100/
+
+Baixe a extensão Python no Visual Studio Code
+
+Quando abrir o projeto dentro do visual aperte as seguintes teclas "Ctr + Shift + P" escreva Python: Select Interpreter, clique nela e selecione o Python 3.10.0 Global
+
+Para executar o projeto vá no app.py e execute-o, no terminal vai aparecer um link, coloque o link no navegador e teste o projeto.
+
+existe uma pasta no projeto chamado tJogos_Build aonde estão os jogos para testar o projeto.
+
