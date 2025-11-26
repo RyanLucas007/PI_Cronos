@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cronos - Central de suporte</title>
+    <link rel="icon" href="{{url_for('static', filename='img/cronos_logo_neon_transparent-removebg-preview.png')}}">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/suporte.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/particula.css') }}">
+</head>
+
+<body>
+    <div class="container-principal">
+        <div class="particles" id="particles"></div>
+
+        <header class="header">
+            <div class="logo-container">
+                <img src="{{ url_for('static', filename='img/cronos_logo_neon_transparent-removebg-preview.png') }}"
+                    alt="logo" width="50">
+                <h1>Cronos</h1>
+            </div>
+
+            <!-- Ícone burger (mobile) -->
+            <img src="{{ url_for('static', filename='img/1000_F_225221877_9x7repcZzz4ryhvZ4Z5DmlnnCTdTUImT-removebg-preview.png') }}"
+                alt="Menu" class="menu-burger-icon" id="burgerBtn">
+
+            <nav class="nav" id="mainNav" aria-label="Navegação principal">
+                <a href="{{ url_for('index') }}"><button class="nav-button">Home</button></a>
+                <a href="{{ url_for('biblioteca') }}"><button class="nav-button">Biblioteca</button></a>
+                <a href="{{ url_for('loja') }}"><button class="nav-button">Loja</button></a>
+                <a href="{{ url_for('suporte') }}"><button class="nav-button active">Suporte</button></a>
+                {% if session.get('user_role') == 'dev' or session.get('user_role') == 'admin' %}
+                <a href="{{ url_for('dev_upload') }}"><button class="nav-button">Dev</button></a>
+                {% endif %}
+                {% if session.get('user_role') == 'admin' %}
+                <a href="{{ url_for('admin_index') }}"><button class="nav-button">Admin</button></a>
+                {% endif %}
+            </nav>
+
+            <div class="perfil" role="button" aria-haspopup="true" aria-expanded="false" id="perfilBtn">
+                <div class="avatar" aria-hidden="true">
+                    {% if session.get('user_avatar') %}
+                    <img src="/{{ session.get('user_avatar') }}" alt="Avatar">
+                    {% else %}
+                    <img src="{{ url_for('static', filename='img/default-avatar.png') }}" alt="Avatar">
+                    {% endif %}
+                </div>
+                <span>
+                    {% if session.get('user_id') %}
+                    {{ session.get('user_nick') or session.get('user_name') }}
+                    {% else %} PERFIL {% endif %}
+                </span>
+            </div>
+
+            <div class="profile-menu" id="profileMenu">
+                <div class="profile-header">
+                    <div class="profile-avatar">
+                        {% if session.get('user_avatar') %}
+                        <img src="/{{ session.get('user_avatar') }}" alt="Avatar do usuário">
+                        {% else %}
+                        <img src="{{ url_for('static', filename='img/default-avatar.png') }}" alt="Avatar padrão">
+                        {% endif %}
+                    </div>
+                    <div class="profile-info">
+                        <h4>
+                            {% if session.get('user_id') %}
+                            {{ session.get('user_nick') or session.get('user_name') }}
+                            {% else %}
+                            Usuário Cronos
+                            {% endif %}
+                        </h4>
+                        <p>
+                            {% if session.get('user_id') %}
+                            Nível {{ session.get('user_level', 1) }}
+                            {% else %}
+                            Nível 1
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+                <div class="profile-actions">
+                    {% if session.get('user_id') %}
+                    <a class="profile-action-btn" href="{{ url_for('perfilConfig') }}">Meu Perfil</a>
+                    <a class="profile-action-btn" href="{{ url_for('perfilConfig') }}">Configurações</a>
+                    <a class="profile-action-btn"
+                        href="{{ url_for('logout', next=request.full_path or request.path) }}">Sair</a>
+                    <a href="{{ url_for('politicas') }}" class="profile-action-btn">Políticas</a>
+                    {% else %}
+                    <a class="profile-action-btn" href="{{ url_for('login') }}">Entrar</a>
+                    <a class="profile-action-btn" href="{{ url_for('cadastrar') }}">Cadastrar</a>
+                    <a class="profile-action-btn" href="{{ url_for('perfilConfig') }}">Configurações</a>
+                    <a href="{{ url_for('politicas') }}" class="profile-action-btn">Políticas</a>
+                    {% endif %}
+                </div>
+            </div>
+        </header>
+
+        <main class="suporte-main">
+            <div class="container">
+                <aside class="suporte-menu">
+                    <ul>
+                        <li class="active" data-section="central">Central de ajuda</li>
+                        <li data-section="pagamentos">Pagamentos e Compras</li>
+                        <li data-section="downloads">Downloads e Instalação</li>
+                        <li data-section="seguranca">Segurança</li>
+                        <li data-section="reembolso">Política de Reembolso</li>
+                        <li data-section="historico">Histórico de Chamados</li>
+                    </ul>
+                </aside>
+
+                <section class="suporte-content">
+                    <!-- CENTRAL -->
+                    <section id="view-central" class="view-section active">
+                        <div class="search-box">
+                            <input id="searchInput" type="text" placeholder="Digite sua dúvida...">
+                        </div>
+
+                        <h2>Artigos de ajuda</h2>
+                        <div class="articles" id="helpArticles">
+                            <div class="card"><span>Como redefinir senha</span></div>
+                            <div class="card"><span>Como solicitar reembolso</span></div>
+                            <div class="card"><span>Erro de instalação mais comum</span></div>
+                        </div>
+
+                        <h2>Perguntas Frequentes</h2>
+                        <div class="faq" id="faqList">
+                            <details>
+                                <summary>Não consigo acessar minha conta</summary>
+                                <p>Verifique seu e-mail, redefina a senha e confira se não há problemas de conexão.</p>
+                            </details>
+                            <details>
+                                <summary>Como ativar autenticação em dois fatores?</summary>
+                                <p>Acesse as configurações de segurança da sua conta e ative o 2FA.</p>
+                            </details>
+                        </div>
+
+                        <h2>Abrir Chamado</h2>
+                        <form class="ticket-form" id="chamadoForm">
+                            <input id="nome" type="text" placeholder="Nome" required>
+                            <input id="email" type="email" placeholder="E-mail" required>
+                            <select id="categoria" required>
+                                <option value="">Selecione a categoria</option>
+                                <option value="Login">Login</option>
+                                <option value="Compra">Compra</option>
+                                <option value="Instalação">Instalação</option>
+                                <option value="Outros">Outros</option>
+                            </select>
+                            <textarea id="descricao" placeholder="Descreva o problema" rows="4" required></textarea>
+                            <button type="submit">Enviar chamado</button>
+                            <p id="feedbackChamado" class="feedback-chamado"></p>
+                        </form>
+                    </section>
+
+                    <!-- PAGAMENTOS -->
+                    <section id="view-pagamentos" class="view-section">
+                        <h1>Pagamentos e Compras</h1><br>
+
+                        <section class="suporte-texto">
+                            <h2>Métodos de Pagamento Aceitos</h2>
+                            <p>Aceitamos cartão de crédito, débito, Pix, PayPal e boleto bancário. Todos os pagamentos
+                                são
+                                processados de forma segura e rápida.</p><br>
+                        </section>
+
+                        <section class="suporte-texto">
+                            <h2>Problemas de Pagamento</h2>
+                            <p>Se sua transação foi recusada, pode ser devido a dados incorretos, saldo insuficiente ou
+                                bloqueio do
+                                banco. Em casos de cobrança duplicada ou pagamento em análise, entre em contato com
+                                nosso suporte.</p><br>
+                        </section>
+
+                        <section class="suporte-texto">
+                            <h2>Histórico de Compras</h2>
+                            <p>Você pode visualizar todas as suas compras e baixar notas fiscais diretamente na área da
+                                sua conta.</p><br>
+                        </section>
+
+                        <section class="suporte-texto">
+                            <h2>Assinaturas e Renovação Automática</h2>
+                            <p>As assinaturas são renovadas automaticamente. Se não desejar renovar, desative a
+                                renovação automática
+                                nas configurações.</p><br>
+                        </section>
+
+                        <section class="suporte-texto">
+                            <h2>Carteira Virtual / Saldo da Conta</h2>
+                            <p>Você pode adicionar créditos à sua carteira virtual e utilizá-los em qualquer produto da
+                                plataforma.</p><br>
+                        </section>
+                    </section>
+
+                    <!-- DOWNLOADS -->
+                    <section id="view-downloads" class="view-section">
+                        <h1>Downloads e Instalação</h1><br>
+
+                        <ul class="accordion">
+                            <li>
+                                <button class="accordion-button">Como Baixar Jogos (PC e lançadores)</button>
+                                <div class="accordion-content">
+                                    <p>Para baixar seus jogos, acesse a aba “Biblioteca” após fazer login e clique em
+                                        “Instalar” no jogo desejado.</p><br>
+                                </div>
+                            </li>
+
+                            <li>
+                                <button class="accordion-button">Requisitos de Sistema</button>
+                                <div class="accordion-content">
+                                    <p>Verifique os requisitos mínimos e recomendados na página do jogo para garantir
+                                        desempenho
+                                        adequado.</p><br>
+                                </div>
+                            </li>
+
+                            <li>
+                                <button class="accordion-button">Erros Comuns de Instalação</button>
+                                <div class="accordion-content">
+                                    <p>Verifique se há espaço em disco, execute o launcher como administrador e veja se
+                                        o antivírus
+                                        não está bloqueando o jogo.</p><br>
+                                </div>
+                            </li>
+
+                            <li>
+                                <button class="accordion-button">Velocidade de Download</button>
+                                <div class="accordion-content">
+                                    <p>Downloads lentos podem ser causados por conexão instável. Evite uso simultâneo de
+                                        streaming e dê
+                                        preferência ao cabo de rede.</p><br>
+                                </div>
+                            </li>
+
+                            <li>
+                                <button class="accordion-button">Biblioteca de Jogos</button>
+                                <div class="accordion-content">
+                                    <p>Sua biblioteca reúne todos os jogos comprados. Você pode reinstalá-los a qualquer
+                                        momento.</p><br>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+
+                    <!-- SEGURANÇA -->
+                    <section id="view-seguranca" class="view-section">
+                        <h1>Segurança</h1><br>
+
+                        <section>
+                            <h2>Autenticação em Dois Fatores (2FA)</h2>
+                            <p>A autenticação em dois fatores adiciona uma camada extra de proteção à sua conta,
+                                exigindo um
+                                código adicional além da senha.</p><br><br>
+                        </section>
+
+                        <section>
+                            <h2>Proteção da Conta</h2>
+                            <p>Use senhas fortes, não compartilhe seus dados e evite clicar em links suspeitos.</p>
+                            <br><br>
+                        </section>
+
+                        <section>
+                            <h2>Atividade Suspeita</h2>
+                            <p>Se notar logins estranhos ou alterações não autorizadas, altere sua senha e contate o
+                                suporte
+                                imediatamente.</p><br><br>
+                        </section>
+
+                        <section>
+                            <h2>Dispositivos Confiáveis</h2>
+                            <p>Marque dispositivos confiáveis para não precisar digitar o código 2FA em todo login.</p>
+                            <br><br>
+                        </section>
+
+                        <section>
+                            <h2>Recuperação de Conta</h2>
+                            <p>Mantenha seu e-mail e telefone atualizados para facilitar a recuperação da conta.</p>
+                            <br><br>
+                        </section>
+                    </section>
+
+                    <!-- REEMBOLSO -->
+                    <section id="view-reembolso" class="view-section">
+                        <h1>Política de Reembolso</h1><br>
+
+                        <section>
+                            <h2>Prazo para Solicitar Reembolso</h2>
+                            <p>Você pode solicitar reembolso em até <strong>14 dias</strong> após a compra, com menos de
+                                <strong>2 horas</strong> de jogo.
+                            </p><br>
+                        </section>
+
+                        <section>
+                            <h2>Jogos e Conteúdos Não Reembolsáveis</h2>
+                            <p>Itens promocionais, cartões-presente e DLCs já utilizados podem não ser elegíveis para
+                                reembolso.</p><br>
+                        </section>
+
+                        <section>
+                            <h2>Como Solicitar um Reembolso</h2>
+                            <p>Acesse o histórico de compras, selecione o produto e clique em <em>“Solicitar
+                                    Reembolso”</em>.</p><br>
+                        </section>
+
+                        <section>
+                            <h2>Tempo de Processamento</h2>
+                            <p>O processo pode levar até <strong>7 dias úteis</strong>, dependendo do método de
+                                pagamento.</p><br>
+                        </section>
+
+                        <section>
+                            <h2>Reembolso em Créditos ou Dinheiro</h2>
+                            <p>Você pode receber o valor de volta no método original ou em créditos na plataforma.</p>
+                            <br>
+                        </section>
+                    </section>
+
+                    <!-- HISTÓRICO -->
+                    <section id="view-historico" class="view-section">
+                        <h1>Histórico de Chamados</h1><br>
+                        <div id="listaChamados" class="historico-lista"></div>
+                    </section>
+                </section>
+            </div>
+        </main>
+
+        <!-- Chat flutuante -->
+        <button class="chat-toggle" id="chatToggle" title="Abrir chat de suporte">💬</button>
+        <div id="chatInterface" class="chat-interface">
+            <div class="chat-header">
+                <h3>🎮 Suporte Cronos Games</h3>
+                <button id="closeChat" class="close-chat" title="Fechar chat">×</button>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <div class="message support-message">
+                    <div class="message-header">
+                        <strong>Suporte Cronos</strong>
+                        <span class="message-time">Agora</span>
+                    </div>
+                    <div class="message-content">
+                        Olá! Bem-vindo ao suporte da FPC Games! Como podemos ajudar você hoje? 🎯
+                    </div>
+                </div>
+            </div>
+            <div id="typingIndicator" class="typing-indicator"></div>
+            <div class="chat-input-container">
+                <textarea id="chatInput" placeholder="Digite sua mensagem..." rows="3" maxlength="1000"></textarea>
+                <button id="sendMessage" class="send-button">Enviar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/particula.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/suporte.js') }}"></script>
+</body>
+
+</html>

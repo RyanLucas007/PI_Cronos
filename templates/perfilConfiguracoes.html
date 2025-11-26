@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Configurações do perfil</title>
+  <link rel="icon" href="{{url_for('static', filename='img/cronos_logo_neon_transparent-removebg-preview.png')}}">
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/perfilConfiguracoes.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/particula.css') }}">
+</head>
+
+<body>
+  <div class="container-principal">
+    <div class="particles" id="particles"></div>
+
+    <header class="header">
+      <div class="logo-container">
+        <img src="{{ url_for('static', filename='img/cronos_logo_neon_transparent-removebg-preview.png') }}"
+             alt="logo" width="50">
+        <h1>Cronos</h1>
+      </div>
+
+      <!-- Ícone burger (mobile) -->
+      <img
+        src="{{ url_for('static', filename='img/1000_F_225221877_9x7repcZzz4ryhvZ4Z5DmlnnCTdTUImT-removebg-preview.png') }}"
+        alt="Menu" class="menu-burger-icon" id="burgerBtn">
+
+      <nav class="nav" id="mainNav" aria-label="Navegação principal">
+        <a href="{{ url_for('index') }}"><button class="nav-button">Home</button></a>
+        <a href="{{ url_for('biblioteca') }}"><button class="nav-button">Biblioteca</button></a>
+        <a href="{{ url_for('loja') }}"><button class="nav-button">Loja</button></a>
+        <a href="{{ url_for('suporte') }}"><button class="nav-button">Suporte</button></a>
+        {% if session.get('user_role') == 'dev' or session.get('user_role') == 'admin' %}
+        <a href="{{ url_for('dev_upload') }}"><button class="nav-button">Dev</button></a>
+        {% endif %}
+        {% if session.get('user_role') == 'admin' %}
+        <a href="{{ url_for('admin_index') }}"><button class="nav-button">Admin</button></a>
+        {% endif %}
+      </nav>
+
+      <!-- Perfil / menu de usuário -->
+      <div class="perfil" role="button" aria-haspopup="true"
+           aria-expanded="false" id="perfilBtn">
+        <div class="avatar" aria-hidden="true">
+          {% if session.get('user_avatar') %}
+          <img src="/{{ session.get('user_avatar') }}" alt="Avatar">
+          {% else %}
+          <img src="{{ url_for('static', filename='img/default-avatar.png') }}" alt="Avatar">
+          {% endif %}
+        </div>
+        <span>
+          {% if session.get('user_id') %}
+          {{ session.get('user_nick') or session.get('user_name') }}
+          {% else %} PERFIL {% endif %}
+        </span>
+      </div>
+
+      <div class="profile-menu" id="profileMenu">
+        <div class="profile-header">
+          <div class="profile-avatar">
+            {% if session.get('user_avatar') %}
+            <img src="/{{ session.get('user_avatar') }}" alt="Avatar do usuário">
+            {% else %}
+            <img src="{{ url_for('static', filename='img/default-avatar.png') }}" alt="Avatar padrão">
+            {% endif %}
+          </div>
+          <div class="profile-info">
+            <h4>
+              {% if session.get('user_id') %}
+              {{ session.get('user_nick') or session.get('user_name') }}
+              {% else %}
+              Usuário Cronos
+              {% endif %}
+            </h4>
+            <p>
+              {% if session.get('user_id') %}
+              Nível {{ session.get('user_level', 1) }}
+              {% else %}
+              Nível 1
+              {% endif %}
+            </p>
+          </div>
+        </div>
+        <div class="profile-actions">
+          {% if session.get('user_id') %}
+          <a class="profile-action-btn" href="{{ url_for('perfilConfig') }}">Meu Perfil</a>
+          <a class="profile-action-btn" href="{{ url_for('perfilConfig') }}">Configurações</a>
+          <a class="profile-action-btn"
+             href="{{ url_for('logout', next=request.full_path or request.path) }}">Sair</a>
+          <a href="{{ url_for('politicas') }}" class="profile-action-btn">Políticas</a>
+          {% else %}
+          <a class="profile-action-btn" href="{{ url_for('login') }}">Entrar</a>
+          <a class="profile-action-btn" href="{{ url_for('cadastrar') }}">Cadastrar</a>
+          <a class="profile-action-btn" href="{{ url_for('perfilConfig') }}">Configurações</a>
+          <a href="{{ url_for('politicas') }}" class="profile-action-btn">Políticas</a>
+          {% endif %}
+        </div>
+      </div>
+    </header>
+
+    <main class="settings-main">
+      <p class="hello">
+        Olá
+        {% if session.get('user_id') %}
+        {{ session.get('user_nick') or session.get('user_name') }}
+        {% endif %}
+      </p>
+
+      <form class="config-card" method="POST" enctype="multipart/form-data">
+        <h2>Configurações de Perfil</h2>
+
+        <section class="grid two">
+          <div class="avatar-block">
+            <div class="avatar-wrap">
+              <img id="avatarPreview"
+                src="{{ session.get('user_avatar') and '/' + session.get('user_avatar') or url_for('static', filename='img/default-avatar.png') }}"
+                alt="Avatar">
+            </div>
+            <label for="avatar_file" class="label">Foto de Perfil</label>
+            <input type="file" id="avatar_file" name="avatar_file" accept=".png,.jpg,.jpeg,.webp">
+            <small class="hint">PNG, JPG ou WEBP — até alguns MB.</small>
+          </div>
+
+          <div class="basic-block">
+            <label class="label" for="display_name">Nome</label>
+            <input class="input" type="text" id="display_name" name="display_name"
+                   placeholder="Seu nome" value="{{ user and user[1] }}">
+
+            <label class="label" for="nickname">Apelido (opcional)</label>
+            <input class="input" type="text" id="nickname" name="nickname"
+                   placeholder="Como quer ser exibido" value="{{ user and user[4] }}">
+
+            <label class="label" for="email">Email</label>
+            <input class="input" type="email" id="email" name="email"
+                   placeholder="seu@email.com"
+                   value="{{ user and user[2] }}">
+          </div>
+        </section>
+
+        <hr class="sep">
+
+        <section class="password-block">
+          <h3>Alterar Senha</h3>
+
+          <label class="label" for="current_password">Senha atual</label>
+          <input class="input" type="password" id="current_password" name="current_password"
+                 autocomplete="current-password">
+
+          <div class="grid two">
+            <div>
+              <label class="label" for="new_password">Nova senha</label>
+              <input class="input" type="password" id="new_password" name="new_password"
+                     autocomplete="new-password">
+            </div>
+            <div>
+              <label class="label" for="confirm_password">Confirmar nova senha</label>
+              <input class="input" type="password" id="confirm_password" name="confirm_password"
+                     autocomplete="new-password">
+            </div>
+          </div>
+
+          <small class="hint">Para trocar a senha, preencha os três campos acima.</small>
+        </section>
+
+        <div class="actions">
+          <button class="btn-primary" type="submit">Salvar alterações</button>
+          <a class="btn-ghost" href="{{ url_for('loja') }}">Cancelar</a>
+        </div>
+
+        {% if session.get('user_role') == 'user' %}
+        <hr class="sep">
+        <section>
+          <h3>Quero ser Desenvolvedor</h3>
+          <p class="hint">Conte para nós por que você quer o acesso de desenvolvedor.</p>
+          <form method="POST" action="{{ url_for('dev_solicitar') }}">
+            <textarea name="dev_reason" class="input" rows="4"
+                      placeholder="Explique seu motivo..."></textarea>
+            <div class="actions" style="margin-top:12px">
+              <button class="btn-primary" type="submit">Enviar solicitação</button>
+            </div>
+          </form>
+        </section>
+        {% endif %}
+      </form>
+    </main>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/perfilConfiguracoes.js')}}"></script>
+  <script src="{{ url_for('static', filename='js/particula.js') }}"></script>
+</body>
+
+</html>

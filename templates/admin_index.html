@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cronos - Painel Admin</title>
+
+    <link rel="icon" href="{{url_for('static', filename='img/cronos_logo_neon_transparent-removebg-preview.png')}}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_panel.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/particula.css') }}">
+</head>
+
+<body>
+    <div class="container-principal">
+        <div class="particles" id="particles"></div>
+
+        <header class="header">
+            <div class="logo-container">
+                <img src="{{ url_for('static', filename='img/cronos_logo_neon_transparent-removebg-preview.png') }}"
+                    alt="logo" width="50">
+                <h1>Cronos</h1>
+            </div>
+
+            <!-- ÍCONE DO MENU BURGUER (MESMO DA HOME) -->
+            <img
+                src="{{ url_for('static', filename='img/1000_F_225221877_9x7repcZzz4ryhvZ4Z5DmlnnCTdTUImT-removebg-preview.png') }}"
+                alt="Menu" class="menu-burger-icon" id="burgerBtn">
+
+            <!-- NAV COM ID PARA O JS E ACTIVE DINÂMICO -->
+            <nav class="nav" id="mainNav" aria-label="Navegação principal">
+                <a href="{{ url_for('index') }}">
+                    <button class="nav-button {% if request.endpoint == 'index' %}active{% endif %}">Home</button>
+                </a>
+                <a href="{{ url_for('biblioteca') }}">
+                    <button class="nav-button {% if request.endpoint == 'biblioteca' %}active{% endif %}">
+                        Biblioteca
+                    </button>
+                </a>
+                <a href="{{ url_for('loja') }}">
+                    <button class="nav-button {% if request.endpoint == 'loja' %}active{% endif %}">
+                        Loja
+                    </button>
+                </a>
+                <a href="{{ url_for('suporte') }}">
+                    <button class="nav-button {% if request.endpoint == 'suporte' %}active{% endif %}">
+                        Suporte
+                    </button>
+                </a>
+
+                {% if session.get('user_role') == 'dev' or session.get('user_role') == 'admin' %}
+                <a href="{{ url_for('dev_upload') }}">
+                    <button class="nav-button {% if request.endpoint == 'dev_upload' %}active{% endif %}">
+                        Dev
+                    </button>
+                </a>
+                {% endif %}
+
+                {% if session.get('user_role') == 'admin' %}
+                <a href="{{ url_for('admin_index') }}">
+                    <button
+                        class="nav-button {% if request.endpoint and request.endpoint.startswith('admin_') %}active{% endif %}">
+                        Admin
+                    </button>
+                </a>
+                {% endif %}
+            </nav>
+
+            <div class="perfil" role="button" aria-haspopup="true" aria-expanded="false" id="perfilBtn">
+                <div class="avatar" aria-hidden="true">
+                    {% if session.get('user_avatar') %}
+                    <img src="/{{ session.get('user_avatar') }}" alt="Avatar">
+                    {% else %}
+                    <img src="{{ url_for('static', filename='img/default-avatar.png') }}" alt="Avatar">
+                    {% endif %}
+                </div>
+                <span>
+                    {% if session.get('user_id') %}
+                    {{ session.get('user_nick') or session.get('user_name') }}
+                    {% else %} PERFIL {% endif %}
+                </span>
+            </div>
+
+            <div class="profile-menu" id="profileMenu">
+                <div class="profile-header">
+                    <div class="profile-avatar">
+                        {% if session.get('user_avatar') %}
+                        <img src="/{{ session.get('user_avatar') }}" alt="Avatar do usuário">
+                        {% else %}
+                        <img src="{{ url_for('static', filename='img/default-avatar.png') }}" alt="Avatar padrão">
+                        {% endif %}
+                    </div>
+                    <div class="profile-info">
+                        <h4>
+                            {% if session.get('user_id') %}
+                            {{ session.get('user_nick') or session.get('user_name') }}
+                            {% else %}
+                            Usuário Cronos
+                            {% endif %}
+                        </h4>
+                        <p>
+                            {% if session.get('user_id') %}
+                            Nível {{ session.get('user_level', 1) }}
+                            {% else %}
+                            Nível 1
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+                <div class="profile-actions">
+                    {% if session.get('user_id') %}
+                    <a class="profile-action-btn" href="{{ url_for('perfilConfig') }}">Meu Perfil</a>
+                    <a class="profile-action-btn" href="{{ url_for('perfilConfig') }}">Configurações</a>
+                    <a class="profile-action-btn"
+                        href="{{ url_for('logout', next=request.full_path or request.path) }}">Sair</a>
+                    <a href="{{ url_for('politicas') }}" class="profile-action-btn">Políticas</a>
+                    {% else %}
+                    <a class="profile-action-btn" href="{{ url_for('login') }}">Entrar</a>
+                    <a class="profile-action-btn" href="{{ url_for('cadastrar') }}">Cadastrar</a>
+                    <a class="profile-action-btn" href="{{ url_for('perfilConfig') }}">Configurações</a>
+                    <a href="{{ url_for('politicas') }}" class="profile-action-btn">Políticas</a>
+                    {% endif %}
+                </div>
+            </div>
+        </header>
+
+        <main class="admin-main">
+            <section class="admin-dashboard">
+                <header class="admin-dashboard-header">
+                    <h2>Painel de Administração</h2>
+                </header>
+
+                <section class="admin-kpi-grid">
+                    <article class="kpi-card">
+                        <div class="kpi-label">Jogos pendentes para publicação</div>
+                        <div class="kpi-value">{{ pend_games or 0 }}</div>
+                    </article>
+
+                    <article class="kpi-card">
+                        <div class="kpi-label">Usuários cadastrados</div>
+                        <div class="kpi-value">{{ total_users or 0 }}</div>
+                    </article>
+
+                    <article class="kpi-card">
+                        <div class="kpi-label">Jogos no catálogo</div>
+                        <div class="kpi-value">{{ total_games or 0 }}</div>
+                    </article>
+                </section>
+
+                <section class="admin-actions">
+                    <div class="admin-actions-grid">
+                        <a href="{{ url_for('admin_publicar_jogos') }}" class="admin-action-card">
+                            <div class="admin-action-body">
+                                <h4>Publicar jogos pendentes</h4>
+                                <p>Fazer a análise do jogo antes de ser enviado para a loja.</p>
+                                <span class="admin-action-footer">
+                                    {{ pend_games or 0 }} pendente(s) · Abrir fila
+                                </span>
+                            </div>
+                        </a>
+
+                        <a href="{{ url_for('admin_usuarios') }}" class="admin-action-card">
+                            <div class="admin-action-body">
+                                <h4>Gerenciar Usuários</h4>
+                                <p>Controle de contas, estar podendo fazer o banimento de uma conta.</p>
+                                <span class="admin-action-footer">
+                                    Abrir gerenciador de usuários
+                                </span>
+                            </div>
+                        </a>
+
+                        <a href="{{ url_for('admin_jogos') }}" class="admin-action-card">
+                            <div class="admin-action-body">
+                                <h4>Gerenciar Jogos</h4>
+                                <p>Gerenciar os jogos, remove-los em caso de golpe.</p>
+                                <span class="admin-action-footer">
+                                    Abrir lista de jogos
+                                </span>
+                            </div>
+                        </a>
+                    </div>
+                </section>
+            </section>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/particula.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/admin_panel.js') }}"></script>
+</body>
+
+</html>
